@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktív Csapos Elszámoló</title>
+    <style>
+        /* Alap Stílusok */
+        :root {
+            --bg-color: #f4f4f9;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --header-bg: #007bff;
+            --header-text: #ffffff;
+            --calculated-bg: #e9ecef;
+            --border-color: #ddd;
+            --button-bg: #28a745;
+            --button-hover-bg: #218838;
+            --settings-bg: #6c757d;
+            --settings-hover-bg: #5a6268;
+            --positive-bg: #d4edda;
+            --positive-text: #155724;
+            --negative-bg: #f8d7da;
+            --negative-text: #721c24;
+        }
+
+        /* Sötét Téma */
+        body.theme-dark {
+            --bg-color: #212529;
+            --container-bg: #343a40;
+            --text-color: #f8f9fa;
+            --header-bg: #17a2b8;
+            --calculated-bg: #495057;
+            --border-color: #6c757d;
+            --positive-bg: #2a3b2c;
+            --positive-text: #a3d4a6;
+            --negative-bg: #4a2c2f;
+            --negative-text: #e4a7ac;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+        h1, h2 {
+            text-align: center;
+            border-bottom: 2px solid var(--header-bg);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid var(--border-color); padding: 12px; text-align: right; vertical-align: middle; }
+        th { background-color: var(--header-bg); color: var(--header-text); text-align: center; }
+        td:first-child, .cash-label { text-align: left; font-weight: bold; }
+        input {
+            width: 95%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;
+            box-sizing: border-box; text-align: right; font-size: 1em;
+            background-color: var(--container-bg); color: var(--text-color);
+        }
+        .calculated { background-color: var(--calculated-bg); font-weight: bold; }
+        .button-container { text-align: center; margin: 20px 0; }
+        button {
+            color: white; border: none; padding: 12px 25px; font-size: 16px;
+            border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin: 5px;
+        }
+        .add-btn { background-color: var(--button-bg); }
+        .add-btn:hover { background-color: var(--button-hover-bg); }
+        .settings-btn { background-color: var(--settings-bg); }
+        .settings-btn:hover { background-color: var(--settings-hover-bg); }
+
+        .totals-section, .cash-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; }
+        .total-display { font-size: 1.6em; font-weight: bold; text-align: right; padding: 10px 0; }
+        .positive { background-color: var(--positive-bg); color: var(--positive-text); }
+        .negative { background-color: var(--negative-bg); color: var(--negative-text); }
+        #difference { padding: 15px; border-radius: 5px; margin-top: 10px; }
+        .settings-panel { margin-top: 20px; padding: 15px; background: var(--calculated-bg); border-radius: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Interaktív Csapos Elszámoló</h1>
+
+    <div class="settings-panel">
+        <h2>Beállítások</h2>
+        <button class="settings-btn" onclick="applyTheme('theme-light')">☀️ Világos Kinézet</button>
+        <button class="settings-btn" onclick="applyTheme('theme-dark')">🌙 Sötét Kinézet</button>
+        <button class="add-btn" onclick="saveDataAsFile()">💾 Mentés és Letöltés</button>
+    </div>
+    
+    <div class="sales-section">
+        <h2>1. Forgalom Elszámoló</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Tétel neve</th>
+                    <th>Kezdő (ml/db)</th>
+                    <th>Jelenlegi (ml/db)</th>
+                    <th>Fogyás (ml/db)</th>
+                    <th>Ár (Ft)</th>
+                    <th>Összeg (Ft)</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-table"></tbody>
+        </table>
+        <div class="button-container">
+            <button class="add-btn" onclick="addRow()">Új Tétel Hozzáadása</button>
+        </div>
+    </div>
+
+    <div class="cash-section">
+        <h2>2. Kassza Zárás</h2>
+        <table>
+            <tbody id="cash-table">
+                <script>
+                    const denominations = [20000, 10000, 5000, 2000, 1000, 500];
+                    denominations.forEach(d => {
+                        document.write(`
+                            <tr>
+                                <td class="cash-label">${d.toLocaleString('hu-HU')} Ft</td>
+                                <td><input type="number" id="note-${d}" class="denomination-qty" oninput="updateAllCalculations()" placeholder="Darabszám..."></td>
+                            </tr>
+                        `);
+                    });
+                </script>
+                <tr>
+                    <td class="cash-label">Bankkártya (Ft)</td>
+                    <td><input type="number" id="card-payment" oninput="updateAllCalculations()" placeholder="Bankkártyás bevétel..."></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="totals-section">
+        <h2>3. Összesítés</h2>
+        <div id="sales-total" class="total-display">Össz forgalom: 0 Ft</div>
+        <div id="revenue-total" class="total-display">Tényleges bevétel: 0 Ft</div>
+        <div id="difference" class="total-display">Eltérés: 0 Ft</div>
+    </div>
+</div>
+
+<script>
+// --- ADATOK KEZELÉSE ---
+// Ebbe a változóba fogja a mentett fájl beletenni az adatokat. Ha üres, az alapértelmezett tételeket tölti be.
+const savedData = null;
+
+const defaultItems = [
+    { name: "Sör (csapolt)", price: 1.2, start: "", current: "" },
+    { name: "Unicum", price: 15.0, start: "", current: "" }
+];
+
+// --- FŐ FUNKCIÓK ---
+function updateAllCalculations() {
+    const salesTotal = calculateInventory();
+    const revenueTotal = calculateRevenue();
+    const difference = revenueTotal - salesTotal;
+
+    document.getElementById('sales-total').textContent = `Össz forgalom: ${salesTotal.toFixed(2)} Ft`;
+    document.getElementById('revenue-total').textContent = `Tényleges bevétel: ${revenueTotal.toFixed(2)} Ft`;
+    
+    const diffElement = document.getElementById('difference');
+    diffElement.textContent = `Eltérés: ${difference.toFixed(2)} Ft`;
+
+    diffElement.className = "total-display";
+    if (difference > 0) diffElement.classList.add('positive');
+    else if (difference < 0) diffElement.classList.add('negative');
+}
+
+function calculateInventory() {
+    const rows = document.getElementById('inventory-table').rows;
+    let grandTotal = 0;
+    for (let row of rows) {
+        const startQty = parseFloat(row.querySelector('.start-qty').value) || 0;
+        const currentQty = parseFloat(row.querySelector('.current-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.price').value) || 0;
+        const consumption = startQty - currentQty;
+        const total = consumption * price;
+        row.querySelector('.consumption').textContent = consumption.toFixed(2);
+        row.querySelector('.total').textContent = total.toFixed(2);
+        grandTotal += total;
+    }
+    return grandTotal;
+}
+
+function calculateRevenue() {
+    let cashTotal = 0;
+    denominations.forEach(d => {
+        cashTotal += (parseFloat(document.getElementById(`note-${d}`).value) || 0) * d;
+    });
+    const cardTotal = parseFloat(document.getElementById('card-payment').value) || 0;
+    return cashTotal + cardTotal;
+}
+
+function addRow(item = { name: '', price: '', start: '', current: '' }) {
+    const tableBody = document.getElementById('inventory-table');
+    const row = tableBody.insertRow();
+    row.innerHTML = `
+        <td><input type="text" class="item-name" placeholder="Ital neve..." value="${item.name}"></td>
+        <td><input type="number" class="start-qty" oninput="updateAllCalculations()" value="${item.start}"></td>
+        <td><input type="number" class="current-qty" oninput="updateAllCalculations()" value="${item.current}"></td>
+        <td class="calculated consumption">0</td>
+        <td><input type="number" class="price" oninput="updateAllCalculations()" value="${item.price}"></td>
+        <td class="calculated total">0</td>
+    `;
+}
+
+// --- TÉMA ÉS MENTÉS FUNKCIÓK ---
+function applyTheme(themeName) {
+    document.body.className = themeName;
+}
+
+function saveDataAsFile() {
+    // 1. Aktuális adatok összegyűjtése
+    const currentState = {
+        inventory: [],
+        cash: {}
+    };
+
+    // Leltár adatok
+    const rows = document.getElementById('inventory-table').rows;
+    for (let row of rows) {
+        currentState.inventory.push({
+            name: row.querySelector('.item-name').value,
+            price: row.querySelector('.price').value,
+            start: row.querySelector('.start-qty').value,
+            current: row.querySelector('.current-qty').value
+        });
+    }
+
+    // Kassza adatok
+    denominations.forEach(d => {
+        currentState.cash[`note_${d}`] = document.getElementById(`note-${d}`).value;
+    });
+    currentState.cash.card_payment = document.getElementById('card-payment').value;
+
+    // 2. Adatok beillesztése a HTML sablonba
+    const dataString = JSON.stringify(currentState, null, 4);
+    const fileContent = document.documentElement.outerHTML.replace(
+        'const savedData = null;',
+        `const savedData = ${dataString};`
+    );
+
+    // 3. Fájl generálása és letöltés felajánlása
+    const blob = new Blob([fileContent], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'csaposlap_mentett.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+
+// --- OLDAL BETÖLTÉSEKOR FUT LE ---
+window.onload = function() {
+    // Adatok betöltése: ha van mentett adat, azt használja, egyébként az alapértelmezettet.
+    if (savedData && savedData.inventory) {
+        savedData.inventory.forEach(item => addRow(item));
+        if (savedData.cash) {
+            denominations.forEach(d => {
+                document.getElementById(`note-${d}`).value = savedData.cash[`note_${d}`] || '';
+            });
+            document.getElementById('card-payment').value = savedData.cash.card_payment || '';
+        }
+    } else {
+        defaultItems.forEach(item => addRow(item));
+    }
+    
+    if (document.querySelectorAll('#inventory-table tr').length === 0) {
+        addRow(); // Ha üres, adjon hozzá egy sort
+    }
+
+    updateAllCalculations();
+};
+
+</script>
+</body>
+</html>
