@@ -5,145 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interaktív Csapos Elszámoló</title>
     <style>
-        /* Alap Stílusok */
         :root {
-            --bg-color: #f4f4f9;
-            --container-bg: #ffffff;
-            --text-color: #333;
-            --header-bg: #007bff;
-            --header-text: #ffffff;
-            --calculated-bg: #e9ecef;
-            --border-color: #ddd;
-            --button-bg: #28a745;
-            --button-hover-bg: #218838;
-            --settings-bg: #6c757d;
-            --settings-hover-bg: #5a6268;
-            --positive-bg: #d4edda;
-            --positive-text: #155724;
-            --negative-bg: #f8d7da;
-            --negative-text: #721c24;
+            --bg-color: #f4f4f9; --container-bg: #ffffff; --text-color: #212529;
+            --header-bg: #007bff; --border-color: #ddd;
         }
-
-        /* Sötét Téma */
-        body.theme-dark {
-            --bg-color: #212529;
-            --container-bg: #343a40;
-            --text-color: #f8f9fa;
-            --header-bg: #17a2b8;
-            --calculated-bg: #495057;
-            --border-color: #6c757d;
-            --positive-bg: #2a3b2c;
-            --positive-text: #a3d4a6;
-            --negative-bg: #4a2c2f;
-            --negative-text: #e4a7ac;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            background: var(--container-bg);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
-        }
-        h1, h2 {
-            text-align: center;
-            border-bottom: 2px solid var(--header-bg);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
+        .container { max-width: 1200px; margin: auto; background: var(--container-bg); padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: background-color 0.3s; }
+        h1, h2 { text-align: center; border-bottom: 2px solid var(--header-bg); padding-bottom: 10px; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid var(--border-color); padding: 12px; text-align: right; vertical-align: middle; }
-        th { background-color: var(--header-bg); color: var(--header-text); text-align: center; }
+        th { background-color: var(--header-bg); color: white; text-align: center; }
         td:first-child, .cash-label { text-align: left; font-weight: bold; }
-        input {
-            width: 95%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;
-            box-sizing: border-box; text-align: right; font-size: 1em;
-            background-color: var(--container-bg); color: var(--text-color);
-        }
-        .calculated { background-color: var(--calculated-bg); font-weight: bold; }
-        .button-container { text-align: center; margin: 20px 0; }
-        button {
-            color: white; border: none; padding: 12px 25px; font-size: 16px;
-            border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin: 5px;
-        }
-        .add-btn { background-color: var(--button-bg); }
-        .add-btn:hover { background-color: var(--button-hover-bg); }
-        .settings-btn { background-color: var(--settings-bg); }
-        .settings-btn:hover { background-color: var(--settings-hover-bg); }
-
-        .totals-section, .cash-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; }
-        .total-display { font-size: 1.6em; font-weight: bold; text-align: right; padding: 10px 0; }
-        .positive { background-color: var(--positive-bg); color: var(--positive-text); }
-        .negative { background-color: var(--negative-bg); color: var(--negative-text); }
-        #difference { padding: 15px; border-radius: 5px; margin-top: 10px; }
-        .settings-panel { margin-top: 20px; padding: 15px; background: var(--calculated-bg); border-radius: 8px; text-align: center; }
+        input { width: 95%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; text-align: right; font-size: 1em; background-color: var(--container-bg); color: var(--text-color); }
+        .calculated { background-color: rgba(128,128,128,0.1); font-weight: bold; }
+        button { color: white; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin: 5px; }
+        .add-btn { background-color: #28a745; }
+        .save-btn { background-color: #007bff; }
+        .clear-btn { background-color: #dc3545; }
+        .new-shift-btn { background-color: #ffc107; color: #212529;}
+        .settings-container { position: relative; text-align: right; }
+        .settings-toggle { font-size: 2em; cursor: pointer; background: none; border: none; padding: 0 10px; color: var(--text-color); }
+        .settings-panel { display: none; position: absolute; top: 40px; right: 0; background: var(--container-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; text-align: left; width: 280px; }
+        .settings-panel.visible { display: block; }
+        .settings-panel label { display: block; margin-bottom: 10px; font-weight: bold; }
+        .settings-panel input[type="color"] { width: 100%; height: 40px; padding: 0; border: none; }
+        .settings-panel .checkbox-label { display: flex; align-items: center; }
+        .settings-panel input[type="checkbox"] { width: auto; margin-right: 10px; }
+        .settings-panel hr { margin: 20px 0; }
+        .settings-panel button { width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Interaktív Csapos Elszámoló</h1>
-
-    <div class="settings-panel">
-        <h2>Beállítások</h2>
-        <button class="settings-btn" onclick="applyTheme('theme-light')">☀️ Világos Kinézet</button>
-        <button class="settings-btn" onclick="applyTheme('theme-dark')">🌙 Sötét Kinézet</button>
-        <button class="add-btn" onclick="saveDataAsFile()">💾 Mentés és Letöltés</button>
+    <div class="settings-container">
+        <button class="settings-toggle" onclick="toggleSettings()">⚙️</button>
+        <div id="settings-panel" class="settings-panel">
+            <h4>Adatkezelés</h4>
+            <button class="new-shift-btn" onclick="startNewShift()">Új Placc Készítés</button>
+            <button class="clear-btn" onclick="clearAllData()">Teljes Törlés (Tételek is)</button>
+            <hr>
+            <h4>Kinézet</h4>
+            <label for="bg-color-picker">Háttérszín</label>
+            <input type="color" id="bg-color-picker">
+            <label for="text-color-picker" id="text-color-label">Betűszín</label>
+            <input type="color" id="text-color-picker">
+            <label class="checkbox-label"><input type="checkbox" id="auto-text-color-toggle" checked> Automatikus szövegszín</label>
+        </div>
     </div>
+    <h1>Interaktív Csapos Elszámoló</h1>
     
     <div class="sales-section">
         <h2>1. Forgalom Elszámoló</h2>
         <table>
             <thead>
-                <tr>
-                    <th style="width: 25%;">Tétel neve</th>
-                    <th>Kezdő (ml/db)</th>
-                    <th>Jelenlegi (ml/db)</th>
-                    <th>Fogyás (ml/db)</th>
-                    <th>Ár (Ft)</th>
-                    <th>Összeg (Ft)</th>
-                </tr>
+                <tr><th style="width: 25%;">Tétel neve</th><th>Kezdő (ml/db)</th><th>Jelenlegi (ml/db)</th><th>Fogyás (ml/db)</th><th>Ár (Ft)</th><th>Összeg (Ft)</th></tr>
             </thead>
             <tbody id="inventory-table"></tbody>
         </table>
         <div class="button-container">
             <button class="add-btn" onclick="addRow()">Új Tétel Hozzáadása</button>
+            <button class="save-btn" onclick="saveDataAsFile()">Mentés Fájlba</button>
         </div>
     </div>
-
     <div class="cash-section">
         <h2>2. Kassza Zárás</h2>
-        <table>
-            <tbody id="cash-table">
-                <script>
-                    const denominations = [20000, 10000, 5000, 2000, 1000, 500];
-                    denominations.forEach(d => {
-                        document.write(`
-                            <tr>
-                                <td class="cash-label">${d.toLocaleString('hu-HU')} Ft</td>
-                                <td><input type="number" id="note-${d}" class="denomination-qty" oninput="updateAllCalculations()" placeholder="Darabszám..."></td>
-                            </tr>
-                        `);
-                    });
-                </script>
-                <tr>
-                    <td class="cash-label">Bankkártya (Ft)</td>
-                    <td><input type="number" id="card-payment" oninput="updateAllCalculations()" placeholder="Bankkártyás bevétel..."></td>
-                </tr>
-            </tbody>
-        </table>
+        <table id="cash-table-container"></table>
     </div>
-
     <div class="totals-section">
         <h2>3. Összesítés</h2>
         <div id="sales-total" class="total-display">Össz forgalom: 0 Ft</div>
@@ -154,137 +82,97 @@
 
 <script>
 // --- ADATOK KEZELÉSE ---
-// Ebbe a változóba fogja a mentett fájl beletenni az adatokat. Ha üres, az alapértelmezett tételeket tölti be.
-const savedData = null;
+const savedData = null; // Fájlból mentett adatok helye
+const defaultItems = [ { name: "Sör (csapolt)", price: "1.2", start: "", current: "" }, { name: "Unicum", price: "15.0", start: "", current: "" } ];
+const denominations = [20000, 10000, 5000, 2000, 1000, 500];
 
-const defaultItems = [
-    { name: "Sör (csapolt)", price: 1.2, start: "", current: "" },
-    { name: "Unicum", price: 15.0, start: "", current: "" }
-];
-
-// --- FŐ FUNKCIÓK ---
-function updateAllCalculations() {
-    const salesTotal = calculateInventory();
-    const revenueTotal = calculateRevenue();
-    const difference = revenueTotal - salesTotal;
-
-    document.getElementById('sales-total').textContent = `Össz forgalom: ${salesTotal.toFixed(2)} Ft`;
-    document.getElementById('revenue-total').textContent = `Tényleges bevétel: ${revenueTotal.toFixed(2)} Ft`;
-    
-    const diffElement = document.getElementById('difference');
-    diffElement.textContent = `Eltérés: ${difference.toFixed(2)} Ft`;
-
-    diffElement.className = "total-display";
-    if (difference > 0) diffElement.classList.add('positive');
-    else if (difference < 0) diffElement.classList.add('negative');
-}
-
-function calculateInventory() {
-    const rows = document.getElementById('inventory-table').rows;
-    let grandTotal = 0;
-    for (let row of rows) {
-        const startQty = parseFloat(row.querySelector('.start-qty').value) || 0;
-        const currentQty = parseFloat(row.querySelector('.current-qty').value) || 0;
-        const price = parseFloat(row.querySelector('.price').value) || 0;
-        const consumption = startQty - currentQty;
-        const total = consumption * price;
-        row.querySelector('.consumption').textContent = consumption.toFixed(2);
-        row.querySelector('.total').textContent = total.toFixed(2);
-        grandTotal += total;
-    }
-    return grandTotal;
-}
-
-function calculateRevenue() {
-    let cashTotal = 0;
-    denominations.forEach(d => {
-        cashTotal += (parseFloat(document.getElementById(`note-${d}`).value) || 0) * d;
-    });
-    const cardTotal = parseFloat(document.getElementById('card-payment').value) || 0;
-    return cashTotal + cardTotal;
-}
-
-function addRow(item = { name: '', price: '', start: '', current: '' }) {
-    const tableBody = document.getElementById('inventory-table');
-    const row = tableBody.insertRow();
-    row.innerHTML = `
-        <td><input type="text" class="item-name" placeholder="Ital neve..." value="${item.name}"></td>
-        <td><input type="number" class="start-qty" oninput="updateAllCalculations()" value="${item.start}"></td>
-        <td><input type="number" class="current-qty" oninput="updateAllCalculations()" value="${item.current}"></td>
-        <td class="calculated consumption">0</td>
-        <td><input type="number" class="price" oninput="updateAllCalculations()" value="${item.price}"></td>
-        <td class="calculated total">0</td>
-    `;
-}
-
-// --- TÉMA ÉS MENTÉS FUNKCIÓK ---
-function applyTheme(themeName) {
-    document.body.className = themeName;
-}
-
-function saveDataAsFile() {
-    // 1. Aktuális adatok összegyűjtése
-    const currentState = {
-        inventory: [],
-        cash: {}
-    };
-
-    // Leltár adatok
+// --- ÚJ ÉS MÓDOSÍTOTT ADATKEZELŐ FUNKCIÓK ---
+function saveStateToLocalStorage() {
+    const currentState = { inventory: [], cash: {} };
     const rows = document.getElementById('inventory-table').rows;
     for (let row of rows) {
         currentState.inventory.push({
-            name: row.querySelector('.item-name').value,
-            price: row.querySelector('.price').value,
-            start: row.querySelector('.start-qty').value,
-            current: row.querySelector('.current-qty').value
+            name: row.querySelector('.item-name').value, price: row.querySelector('.price').value,
+            start: row.querySelector('.start-qty').value, current: row.querySelector('.current-qty').value
         });
     }
-
-    // Kassza adatok
-    denominations.forEach(d => {
-        currentState.cash[`note_${d}`] = document.getElementById(`note-${d}`).value;
-    });
+    denominations.forEach(d => { currentState.cash[`note_${d}`] = document.getElementById(`note-${d}`).value; });
     currentState.cash.card_payment = document.getElementById('card-payment').value;
-
-    // 2. Adatok beillesztése a HTML sablonba
-    const dataString = JSON.stringify(currentState, null, 4);
-    const fileContent = document.documentElement.outerHTML.replace(
-        'const savedData = null;',
-        `const savedData = ${dataString};`
-    );
-
-    // 3. Fájl generálása és letöltés felajánlása
-    const blob = new Blob([fileContent], { type: 'text/html' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'csaposlap_mentett.html';
-    a.click();
-    URL.revokeObjectURL(a.href);
+    localStorage.setItem('csaposlap_autosave', JSON.stringify(currentState));
 }
 
+function loadStateFromLocalStorage() {
+    const savedStateJSON = localStorage.getItem('csaposlap_autosave');
+    if (!savedStateJSON) return null;
+    return JSON.parse(savedStateJSON);
+}
 
-// --- OLDAL BETÖLTÉSEKOR FUT LE ---
+function startNewShift() {
+    if (!confirm("Biztosan új elszámolást szeretnél kezdeni?\nA tételek és árak megmaradnak, de a mennyiségek és a kassza adatai törlődnek.")) return;
+    
+    const currentData = loadStateFromLocalStorage() || { inventory: defaultItems, cash: {} };
+    // Csak a mennyiségi adatokat töröljük
+    currentData.inventory.forEach(item => {
+        item.start = '';
+        item.current = '';
+    });
+    // Kassza adatokat is töröljük
+    currentData.cash = {};
+
+    localStorage.setItem('csaposlap_autosave', JSON.stringify(currentData));
+    location.reload();
+}
+
+function clearAllData() {
+    if (confirm("FIGYELEM! Biztosan törölni szeretnéd az összes beírt adatot, beleértve a tételeket és árakat is? Ez a művelet nem vonható vissza.")) {
+        localStorage.removeItem('csaposlap_autosave');
+        location.reload();
+    }
+}
+
+// --- FŐ SZÁMÍTÁSI FÜGGVÉNY ---
+function updateAllCalculations() {
+    calculateInventory();
+    calculateRevenue();
+    calculateTotals();
+    saveStateToLocalStorage();
+}
+
+// ... a többi meglévő funkció (calculateInventory, calculateRevenue, calculateTotals, addRow, saveDataAsFile, témavezérlő, stb.) változatlan ...
+function calculateInventory() { const rows = document.getElementById('inventory-table').rows; let grandTotal = 0; for (let row of rows) { const startQty = parseFloat(row.querySelector('.start-qty').value) || 0; const currentQty = parseFloat(row.querySelector('.current-qty').value) || 0; const price = parseFloat(row.querySelector('.price').value) || 0; const consumption = startQty - currentQty; const total = consumption * price; row.querySelector('.consumption').textContent = consumption.toFixed(2); row.querySelector('.total').textContent = total.toFixed(2); grandTotal += total; } return grandTotal; }
+function calculateRevenue() { let cashTotal = 0; denominations.forEach(d => { cashTotal += (parseFloat(document.getElementById(`note-${d}`).value) || 0) * d; }); const cardTotal = parseFloat(document.getElementById('card-payment').value) || 0; return cashTotal + cardTotal; }
+function calculateTotals() { const salesTotal = calculateInventory(); const revenueTotal = calculateRevenue(); const difference = revenueTotal - salesTotal; document.getElementById('sales-total').textContent = `Össz forgalom: ${salesTotal.toFixed(2)} Ft`; document.getElementById('revenue-total').textContent = `Tényleges bevétel: ${revenueTotal.toFixed(2)} Ft`; const diffElement = document.getElementById('difference'); diffElement.textContent = `Eltérés: ${difference.toFixed(2)} Ft`; diffElement.className = "total-display"; if (difference > 0) diffElement.classList.add('positive'); else if (difference < 0) diffElement.classList.add('negative'); }
+function addRow(item = { name: '', price: '', start: '', current: '' }) { const tableBody = document.getElementById('inventory-table'); const row = tableBody.insertRow(); row.innerHTML = `<td><input type="text" class="item-name" placeholder="Ital neve..." value="${item.name}" oninput="updateAllCalculations()"></td><td><input type="number" class="start-qty" oninput="updateAllCalculations()" value="${item.start}"></td><td><input type="number" class="current-qty" oninput="updateAllCalculations()" value="${item.current}"></td><td class="calculated consumption">0</td><td><input type="number" class="price" oninput="updateAllCalculations()" value="${item.price}"></td><td class="calculated total">0</td>`; }
+function saveDataAsFile() { const currentState = loadStateFromLocalStorage(); const dataString = JSON.stringify(currentState, null, 4); const fileContent = document.documentElement.outerHTML.replace('const savedData = null;', `const savedData = ${dataString};`); const blob = new Blob([fileContent], { type: 'text/html' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'csaposlap_mentett.html'; a.click(); URL.revokeObjectURL(a.href); }
+const settingsPanel = document.getElementById('settings-panel'); const bgColorPicker = document.getElementById('bg-color-picker'); const textColorPicker = document.getElementById('text-color-picker'); const autoColorToggle = document.getElementById('auto-text-color-toggle'); const textColorLabel = document.getElementById('text-color-label'); function toggleSettings() { settingsPanel.classList.toggle('visible'); } function getContrastYIQ(hexcolor){ hexcolor = hexcolor.replace("#", ""); const r = parseInt(hexcolor.substr(0,2),16); const g = parseInt(hexcolor.substr(2,2),16); const b = parseInt(hexcolor.substr(4,2),16); const yiq = ((r*299)+(g*587)+(b*114))/1000; return (yiq >= 128) ? '#212529' : '#f8f9fa'; } function applyTheme(bgColor, textColor) { document.documentElement.style.setProperty('--bg-color', bgColor); document.documentElement.style.setProperty('--container-bg', bgColor); document.documentElement.style.setProperty('--text-color', textColor); localStorage.setItem('theme', JSON.stringify({ bgColor, textColor })); } bgColorPicker.addEventListener('input', (e) => { const newBgColor = e.target.value; let newTextColor = textColorPicker.value; if (autoColorToggle.checked) { newTextColor = getContrastYIQ(newBgColor); textColorPicker.value = newTextColor; } applyTheme(newBgColor, newTextColor); }); textColorPicker.addEventListener('input', (e) => { if (!autoColorToggle.checked) { applyTheme(bgColorPicker.value, e.target.value); } }); autoColorToggle.addEventListener('change', (e) => { textColorPicker.disabled = e.target.checked; textColorLabel.style.opacity = e.target.checked ? 0.5 : 1; if (e.target.checked) { const newTextColor = getContrastYIQ(bgColorPicker.value); textColorPicker.value = newTextColor; applyTheme(bgColorPicker.value, newTextColor); } });
+
+// --- MÓDOSÍTVA: OLDAL BETÖLTÉSEKOR ---
 window.onload = function() {
-    // Adatok betöltése: ha van mentett adat, azt használja, egyébként az alapértelmezettet.
-    if (savedData && savedData.inventory) {
-        savedData.inventory.forEach(item => addRow(item));
-        if (savedData.cash) {
-            denominations.forEach(d => {
-                document.getElementById(`note-${d}`).value = savedData.cash[`note_${d}`] || '';
-            });
-            document.getElementById('card-payment').value = savedData.cash.card_payment || '';
-        }
-    } else {
-        defaultItems.forEach(item => addRow(item));
+    let cashTableHTML = '';
+    denominations.forEach(d => { cashTableHTML += `<tr><td class="cash-label">${d.toLocaleString('hu-HU')} Ft</td><td><input type="number" id="note-${d}" class="denomination-qty" oninput="updateAllCalculations()" placeholder="Darabszám..."></td></tr>`; });
+    cashTableHTML += `<tr><td class="cash-label">Bankkártya (Ft)</td><td><input type="number" id="card-payment" oninput="updateAllCalculations()" placeholder="Bankkártyás bevétel..."></td></tr>`;
+    document.getElementById('cash-table-container').innerHTML = cashTableHTML;
+    
+    const autoSavedState = loadStateFromLocalStorage();
+    const dataToLoad = autoSavedState || (savedData ? { inventory: savedData.inventory, cash: savedData.cash } : { inventory: defaultItems, cash: {} });
+
+    if (dataToLoad.inventory) {
+        dataToLoad.inventory.forEach(item => addRow(item));
+    }
+    if (dataToLoad.cash) {
+        denominations.forEach(d => { document.getElementById(`note-${d}`).value = dataToLoad.cash[`note_${d}`] || ''; });
+        document.getElementById('card-payment').value = dataToLoad.cash.card_payment || '';
     }
     
-    if (document.querySelectorAll('#inventory-table tr').length === 0) {
-        addRow(); // Ha üres, adjon hozzá egy sort
-    }
+    if (document.querySelectorAll('#inventory-table tr').length === 0) { addRow(); }
 
-    updateAllCalculations();
+    const savedTheme = JSON.parse(localStorage.getItem('theme'));
+    if (savedTheme) { bgColorPicker.value = savedTheme.bgColor; textColorPicker.value = savedTheme.textColor; applyTheme(savedTheme.bgColor, savedTheme.textColor); } else { bgColorPicker.value = '#ffffff'; textColorPicker.value = '#212529'; }
+    textColorPicker.disabled = autoColorToggle.checked;
+    textColorLabel.style.opacity = autoColorToggle.checked ? 0.5 : 1;
+
+    calculateTotals();
 };
-
 </script>
 </body>
 </html>
